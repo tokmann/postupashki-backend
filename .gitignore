@@ -1,6 +1,5 @@
 # Скомпилированный файлы Java
-Client.class
-Server.class
+*.class
 
 out/
 

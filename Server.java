@@ -5,35 +5,39 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+
+    private static final Logger logger = new Logger();
+
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(8080))
+        try (ServerSocket serverSocket = new ServerSocket(NetworkConstants.DEFAULT_PORT))
         {
-            System.out.println("Сервер запущен на порту 8080");
+            logger.log("Сервер запущен на порту 8080");
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
                     new Thread(() -> handleClient(socket)).start();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("Ошибка принятии соединения", e);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Не удалось запустить сервер", e);
         }
     }
 
     public static void handleClient(Socket socket) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())))
+        try (OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream()))
         {
-            writer.write("OK\n");
-            System.out.println("Выдан ответ клиенту");
+            writer.write(StringConstants.OK_RESPONSE + "\n");
             writer.flush();
+            logger.log("Выдан ответ клиенту");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка при отправке ответа клиенту", e);
         } finally {
             try {
                 socket.close();
             } catch (IOException ignored) {}
         }
     }
+
 }
